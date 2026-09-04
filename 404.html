@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#05010a">
+  <meta name="description" content="404 — System failure. The requested page has vanished into the void.">
+  <title>404 // SYSTEM FAILURE</title>
+
+  <style>
+    :root {
+      --bg: #05010a;
+      --panel: rgba(8, 5, 18, .78);
+      --cyan: #00f6ff;
+      --cyan-soft: rgba(0, 246, 255, .45);
+      --magenta: #ff00a8;
+      --purple: #8b5cff;
+      --red: #ff3158;
+      --text: #e9fbff;
+      --muted: #8ca4ad;
+      --grid: rgba(0, 246, 255, .075);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(139, 92, 255, .12), transparent 28%),
+        radial-gradient(circle at 15% 80%, rgba(255, 0, 168, .08), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Courier New", Courier, monospace;
+      cursor: none;
+      position: relative;
+    }
+
+    /* Cyberpunk perspective grid */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 48% -20% -20%;
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 55px 55px;
+      transform: perspective(500px) rotateX(58deg);
+      transform-origin: top center;
+      mask-image: linear-gradient(to bottom, transparent, #000 18%, #000);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* CRT scanlines */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      opacity: .22;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 3px,
+          rgba(255,255,255,.035) 4px,
+          transparent 5px
+        );
+      animation: scan 3s linear infinite;
+    }
+
+    .noise {
+      position: fixed;
+      inset: -50%;
+      z-index: 49;
+      pointer-events: none;
+      opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      animation: noise .18s steps(2) infinite;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 48;
+      pointer-events: none;
+      background: radial-gradient(circle, transparent 48%, rgba(0,0,0,.58) 100%);
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 260px;
+      height: 260px;
+      left: 0;
+      top: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 45;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(0,246,255,.14), rgba(255,0,168,.055) 38%, transparent 70%);
+      filter: blur(2px);
+      mix-blend-mode: screen;
+    }
+
+    .skull-cursor {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 60;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      font-size: 25px;
+      filter:
+        drop-shadow(0 0 5px var(--cyan))
+        drop-shadow(0 0 12px var(--magenta));
+      animation: cursorPulse 1s ease-in-out infinite alternate;
+    }
+
+    .skull-cursor::after {
+      content: "";
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      left: 50%;
+      top: 50%;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--cyan), 0 0 18px var(--magenta);
+    }
+
+    .page {
+      min-height: 100vh;
+      width: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .terminal {
+      width: min(920px, 100%);
+      position: relative;
+      padding: clamp(24px, 5vw, 58px);
+      border: 1px solid rgba(0,246,255,.35);
+      background: linear-gradient(135deg, rgba(10, 7, 23, .88), rgba(5, 2, 12, .76));
+      box-shadow:
+        0 0 0 1px rgba(255,0,168,.09) inset,
+        0 0 45px rgba(0,246,255,.09),
+        0 0 100px rgba(139,92,255,.08);
+      backdrop-filter: blur(9px);
+      isolation: isolate;
+    }
+
+    .terminal::before,
+    .terminal::after {
+      content: "";
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-color: var(--cyan);
+      border-style: solid;
+      pointer-events: none;
+    }
+
+    .terminal::before {
+      left: -1px;
+      top: -1px;
+      border-width: 2px 0 0 2px;
+    }
+
+    .terminal::after {
+      right: -1px;
+      bottom: -1px;
+      border-width: 0 2px 2px 0;
+    }
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding-bottom: 20px;
+      margin-bottom: 34px;
+      border-bottom: 1px dashed rgba(0,246,255,.22);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--red);
+      animation: blink .7s steps(1) infinite;
+    }
+
+    .status-right {
+      color: var(--cyan);
+      text-align: right;
+    }
+
+    .error-code {
+      position: relative;
+      width: fit-content;
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: clamp(105px, 22vw, 235px);
+      line-height: .72;
+      letter-spacing: -.075em;
+      color: #fff;
+      text-shadow:
+        4px 0 var(--cyan),
+        -4px 0 var(--magenta),
+        0 0 30px rgba(0,246,255,.38);
+      user-select: none;
+      animation: glitch 3.8s infinite;
+    }
+
+    .error-code::before,
+    .error-code::after {
+      content: "404";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .error-code::before {
+      color: var(--cyan);
+      transform: translate(4px, 0);
+      clip-path: inset(0 0 58% 0);
+      animation: glitchTop 2.1s infinite steps(2);
+      opacity: .8;
+    }
+
+    .error-code::after {
+      color: var(--magenta);
+      transform: translate(-4px, 0);
+      clip-path: inset(62% 0 0 0);
+      animation: glitchBottom 1.7s infinite steps(2);
+      opacity: .8;
+    }
+
+    .skull {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) rotate(7deg);
+      font-size: clamp(58px, 10vw, 110px);
+      filter:
+        drop-shadow(0 0 7px var(--magenta))
+        drop-shadow(0 0 25px rgba(255,0,168,.6));
+      animation: floatSkull 3.2s ease-in-out infinite;
+    }
+
+    .headline {
+      margin-top: 35px;
+      color: var(--cyan);
+      font-size: clamp(18px, 3vw, 28px);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px var(--cyan-soft);
+    }
+
+    .message {
+      max-width: 690px;
+      margin-top: 16px;
+      color: #b9cbd1;
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .terminal-lines {
+      margin-top: 25px;
+      padding: 15px 17px;
+      border-left: 2px solid var(--magenta);
+      background: rgba(255,0,168,.035);
+      color: #9ab1b9;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .terminal-lines .prompt {
+      color: var(--magenta);
+    }
+
+    .terminal-lines .success {
+      color: var(--cyan);
+    }
+
+    .actions {
+      margin-top: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .base-button {
+      appearance: none;
+      border: 1px solid var(--cyan);
+      background: rgba(0,246,255,.06);
+      color: var(--cyan);
+      padding: 15px 23px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: .2s ease;
+      box-shadow: 0 0 14px rgba(0,246,255,.13);
+      cursor: none;
+    }
+
+    .base-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-105%);
+      background: linear-gradient(90deg, transparent, rgba(0,246,255,.25), transparent);
+      transition: .35s ease;
+    }
+
+    .base-button:hover {
+      color: #020409;
+      background: var(--cyan);
+      box-shadow:
+        0 0 15px var(--cyan),
+        0 0 45px rgba(0,246,255,.4);
+      transform: translateY(-2px);
+    }
+
+    .base-button:hover::before {
+      transform: translateX(105%);
+    }
+
+    .secondary {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+
+    .secondary span {
+      color: var(--magenta);
+    }
+
+    .footer-code {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(140,164,173,.35);
+      font-size: 9px;
+      letter-spacing: .15em;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .particle {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      pointer-events: none;
+      z-index: 1;
+      animation: drift linear infinite;
+    }
+
+    @keyframes scan {
+      from { transform: translateY(-10px); }
+      to { transform: translateY(10px); }
+    }
+
+    @keyframes noise {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(2%, -1%); }
+      50% { transform: translate(-1%, 2%); }
+      75% { transform: translate(1%, 1%); }
+      100% { transform: translate(-2%, -1%); }
+    }
+
+    @keyframes glitch {
+      0%, 86%, 100% { transform: translate(0); }
+      88% { transform: translate(-3px, 1px) skewX(-1deg); }
+      89% { transform: translate(4px, -1px) skewX(2deg); }
+      90% { transform: translate(0); }
+    }
+
+    @keyframes glitchTop {
+      0%, 78%, 100% { clip-path: inset(0 0 58% 0); }
+      80% { clip-path: inset(13% 0 42% 0); transform: translate(9px, -2px); }
+      81% { clip-path: inset(4% 0 70% 0); transform: translate(-5px, 1px); }
+    }
+
+    @keyframes glitchBottom {
+      0%, 70%, 100% { clip-path: inset(62% 0 0 0); }
+      72% { clip-path: inset(48% 0 12% 0); transform: translate(-10px, 2px); }
+      73% { clip-path: inset(74% 0 3% 0); transform: translate(6px, -1px); }
+    }
+
+    @keyframes blink {
+      50% { opacity: .15; }
+    }
+
+    @keyframes cursorPulse {
+      from { transform: translate(-50%, -50%) scale(.92); }
+      to { transform: translate(-50%, -50%) scale(1.08); }
+    }
+
+    @keyframes floatSkull {
+      0%, 100% { transform: translateY(-50%) rotate(7deg); }
+      50% { transform: translateY(calc(-50% - 13px)) rotate(-5deg); }
+    }
+
+    @keyframes drift {
+      from { transform: translateY(110vh) translateX(0); opacity: 0; }
+      12% { opacity: .8; }
+      88% { opacity: .65; }
+      to { transform: translateY(-10vh) translateX(80px); opacity: 0; }
+    }
+
+    @media (max-width: 650px) {
+      body {
+        overflow: auto;
+        cursor: default;
+      }
+
+      .page {
+        min-height: 100svh;
+        padding: 14px;
+      }
+
+      .terminal {
+        padding: 24px 19px 30px;
+      }
+
+      .statusbar {
+        font-size: 8px;
+        margin-bottom: 27px;
+      }
+
+      .error-code {
+        font-size: clamp(95px, 31vw, 165px);
+      }
+
+      .skull {
+        right: -4px;
+        top: 43%;
+        font-size: 54px;
+      }
+
+      .headline {
+        font-size: 16px;
+        line-height: 1.45;
+        padding-right: 35px;
+      }
+
+      .message {
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .terminal-lines {
+        font-size: 10px;
+      }
+
+      .base-button {
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .cursor-glow,
+      .skull-cursor {
+        display: none;
+      }
+
+      .footer-code {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+
+      .cursor-glow,
+      .skull-cursor,
+      .particle {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="noise"></div>
+  <div class="vignette"></div>
+
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="skull-cursor" id="skullCursor">☠</div>
+
+  <main class="page">
+    <section class="terminal" aria-labelledby="error-title">
+      <div class="statusbar">
+        <div class="status-left">
+          <span class="status-dot"></span>
+          <span>SYS://CORE // CONNECTION LOST</span>
+        </div>
+        <div class="status-right">ERR_404 // NULL_ZONE</div>
+      </div>
+
+      <div class="error-code" aria-label="404">404</div>
+      <div class="skull" aria-hidden="true">💀</div>
+
+      <h1 class="headline" id="error-title">SYSTEM FAILURE: PAGE NOT FOUND</h1>
+
+      <p class="message">
+        The page you requested has been deleted, abducted, corrupted,
+        or possibly eaten by a rogue cyber-demon.
+        Our recovery drones have been notified. They are not optimistic.
+      </p>
+
+      <div class="terminal-lines" aria-label="System diagnostics">
+        <div><span class="prompt">&gt;</span> locating_requested_page...</div>
+        <div><span class="prompt">&gt;</span> scanning_neon_void................ <strong>FAILED</strong></div>
+        <div><span class="prompt">&gt;</span> interrogating_skull............. <strong>NO COMMENT</strong></div>
+        <div><span class="prompt">&gt;</span> deploying_emergency_protocol... <span class="success">ONLINE</span></div>
+      </div>
+
+      <div class="actions">
+        <a class="base-button" href="/" aria-label="Return to home page">
+          ⌂ &nbsp; RETURN TO BASE
+        </a>
+        <div class="secondary">
+          or press <span>ALT + ←</span> and pretend this never happened.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer-code">CYBERNETIC RECOVERY NODE // BUILD 404.∞ // HUMAN ERROR DETECTED</div>
+
+  <script>
+    (() => {
+      const glow = document.getElementById("cursorGlow");
+      const skull = document.getElementById("skullCursor");
+
+      // Smooth cursor-following effects on desktop.
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+      let glowX = mouseX;
+      let glowY = mouseY;
+      let skullX = mouseX;
+      let skullY = mouseY;
+
+      window.addEventListener("pointermove", (event) => {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+      }, { passive: true });
+
+      function animateCursor() {
+        glowX += (mouseX - glowX) * 0.10;
+        glowY += (mouseY - glowY) * 0.10;
+        skullX += (mouseX - skullX) * 0.22;
+        skullY += (mouseY - skullY) * 0.22;
+
+        glow.style.transform = `translate(${glowX}px, ${glowY}px) translate(-50%, -50%)`;
+        skull.style.left = `${skullX}px`;
+        skull.style.top = `${skullY}px`;
+
+        requestAnimationFrame(animateCursor);
+      }
+
+      animateCursor();
+
+      // Floating cyber particles.
+      const particleCount = window.innerWidth < 650 ? 22 : 42;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement("span");
+        particle.className = "particle";
+
+        const size = Math.random() > .88 ? 3 : 2;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * 100}vw`;
+        particle.style.animationDuration = `${7 + Math.random() * 15}s`;
+        particle.style.animationDelay = `${Math.random() * -18}s`;
+
+        if (Math.random() > .55) {
+          particle.style.background = "var(--magenta)";
+          particle.style.boxShadow = "0 0 8px var(--magenta)";
+        }
+
+        document.body.appendChild(particle);
+      }
+
+      // Tiny random text corruption for extra CRT personality.
+      const headline = document.querySelector(".headline");
+      const original = headline.textContent;
+      const chars = "!@#$%^&*<>?/";
+
+      setInterval(() => {
+        if (Math.random() > 0.72) {
+          const index = Math.floor(Math.random() * original.length);
+          if (original[index] !== " ") {
+            headline.textContent =
+              original.substring(0, index) +
+              chars[Math.floor(Math.random() * chars.length)] +
+              original.substring(index + 1);
+
+            setTimeout(() => {
+              headline.textContent = original;
+            }, 80);
+          }
+        }
+      }, 900);
+    })();
+  </script>
+</body>
+</html>
